@@ -1,5 +1,7 @@
 package qlbv;
 
+import qlbv.Chat.ChatForm;
+
 import java.awt.BorderLayout;
 
 import java.awt.Color;
@@ -53,17 +55,21 @@ public class MainFrame extends JFrame {
 	}
    
     // Tạo menu (danh sách chức năng bên trái)
-	private JPanel createMenu() {
-	    JPanel menuPanel = new JPanel(new GridLayout(5, 1, 10, 10));
-	    menuPanel.setBackground(new Color(245, 255, 250)); // nền xanh mint nhạt
-	    menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10)); // padding
-        JButton btnManagePatients = createMenuButton("Quản lý bệnh nhân","iconpatient.png");
-        JButton btnManageDoctors = createMenuButton("Quản lý bác sĩ","icondoctor.png");
-        JButton btnManageAppointments = createMenuButton("Quản lý lịch hẹn","iconapm.png");
-        JButton btnReports = createMenuButton("Báo cáo","iconreport.png");
-        JButton btnManageRecord = createMenuButton("Quản lí hồ sơ","iconmedical.png");
+    // Trong class MainFrame, sửa phương thức createMenu()
+    private JPanel createMenu() {
+        JPanel menuPanel = new JPanel(new GridLayout(6, 1, 10, 10)); // Tăng số hàng lên 6
+        menuPanel.setBackground(new Color(245, 255, 250));
+        menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+
+        JButton btnManagePatients = createMenuButton("Quản lý bệnh nhân", "iconpatient.png");
+        JButton btnManageDoctors = createMenuButton("Quản lý bác sĩ", "icondoctor.png");
+        JButton btnManageAppointments = createMenuButton("Quản lý lịch hẹn", "iconapm.png");
+        JButton btnReports = createMenuButton("Báo cáo", "iconreport.png");
+        JButton btnManageRecord = createMenuButton("Quản lý hồ sơ", "iconmedical.png");
+        JButton btnCustomerSupport = createMenuButton("Chăm sóc khách hàng", "CSKH.jpg"); // Nút mới
+
         btnManagePatients.addActionListener(e -> {
-			contentPanel.removeAll();
+            contentPanel.removeAll();
             contentPanel.add(new PatientManagementForm());
             contentPanel.revalidate();
             contentPanel.repaint();
@@ -92,11 +98,20 @@ public class MainFrame extends JFrame {
             contentPanel.revalidate();
             contentPanel.repaint();
         });
+        btnCustomerSupport.addActionListener(e -> {
+            contentPanel.removeAll();
+            contentPanel.add(new ChatForm()); // Liên kết với ChatForm
+            contentPanel.revalidate();
+            contentPanel.repaint();
+        });
+
         menuPanel.add(btnManagePatients);
         menuPanel.add(btnManageDoctors);
         menuPanel.add(btnManageAppointments);
         menuPanel.add(btnReports);
         menuPanel.add(btnManageRecord);
+        menuPanel.add(btnCustomerSupport); // Thêm nút vào menu
+
         return menuPanel;
     }
 	public JPanel createContentPanel() {
