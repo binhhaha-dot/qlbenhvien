@@ -1,11 +1,11 @@
 package Login;
 
-import javax.swing.*;
-
 import qlbv.MainFrame;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 
 public class LoginUI extends JFrame {
     private JTextField usernameField, emailField;
@@ -18,55 +18,124 @@ public class LoginUI extends JFrame {
         emailService = new EmailService();
 
         setTitle("Login & Register");
-        setSize(400, 300);
+        setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        // Thêm biểu tượng cửa sổ
+        try {
+            URL iconURL = getClass().getResource("/Login/iconlogin.png");
+            if (iconURL == null) {
+                throw new Exception("Không tìm thấy iconlogin.png trong thư mục resources/Login");
+            }
+            Image icon = new ImageIcon(iconURL).getImage();
+            setIconImage(icon);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải biểu tượng cửa sổ: " + e.getMessage());
+        }
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
         // Register Tab
-        JPanel registerPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        registerPanel.add(new JLabel("Username:"));
+        JPanel registerPanel = new JPanel(new BorderLayout(10, 10));
+
+        // Hình ảnh bên trái
+        JPanel imagePanel = new JPanel();
+        try {
+            URL logoURL = getClass().getResource("/Login/iconlogin.png");
+            if (logoURL == null) {
+                throw new Exception("Không tìm thấy iconlogin.png trong thư mục resources/Login");
+            }
+            ImageIcon logoIcon = new ImageIcon(logoURL);
+            Image scaledImage = logoIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+            imagePanel.add(logoLabel);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải logo trong tab Register: " + e.getMessage());
+            imagePanel.add(new JLabel("Không thể hiển thị hình ảnh"));
+        }
+        registerPanel.add(imagePanel, BorderLayout.WEST);
+
+        // Panel nhập liệu bên phải
+        JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel fieldsPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        fieldsPanel.add(new JLabel("Username:"));
         usernameField = new JTextField();
-        registerPanel.add(usernameField);
+        fieldsPanel.add(usernameField);
 
-        registerPanel.add(new JLabel("Email:"));
+        fieldsPanel.add(new JLabel("Email:"));
         emailField = new JTextField();
-        registerPanel.add(emailField);
+        fieldsPanel.add(emailField);
 
-        registerPanel.add(new JLabel("Password:"));
+        fieldsPanel.add(new JLabel("Password:"));
         passwordField = new JPasswordField();
-        registerPanel.add(passwordField);
+        fieldsPanel.add(passwordField);
 
+        inputPanel.add(fieldsPanel, BorderLayout.CENTER);
+
+        // Nút Register ở dưới
         JButton registerButton = new JButton("Register");
         registerButton.addActionListener(e -> registerUser());
-        registerPanel.add(registerButton);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(registerButton);
+        inputPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        registerPanel.add(inputPanel, BorderLayout.CENTER);
 
         // Login Tab
-        JPanel loginPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel loginPanel = new JPanel(new BorderLayout(10, 10));
+
+        // Hình ảnh bên trái
+        JPanel loginImagePanel = new JPanel();
+        try {
+            URL logoURL = getClass().getResource("/Login/iconlogin.png");
+            if (logoURL == null) {
+                throw new Exception("Không tìm thấy iconlogin.png trong thư mục resources/Login");
+            }
+            ImageIcon logoIcon = new ImageIcon(logoURL);
+            Image scaledImage = logoIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
+            loginImagePanel.add(logoLabel);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải logo trong tab Login: " + e.getMessage());
+            loginImagePanel.add(new JLabel("Không thể hiển thị hình ảnh"));
+        }
+        loginPanel.add(loginImagePanel, BorderLayout.WEST);
+
+        // Panel nhập liệu bên phải
+        JPanel loginInputPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel loginFieldsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         JTextField loginUsernameField = new JTextField();
         JPasswordField loginPasswordField = new JPasswordField();
 
-        loginPanel.add(new JLabel("Username:"));
-        loginPanel.add(loginUsernameField);
+        loginFieldsPanel.add(new JLabel("Username:"));
+        loginFieldsPanel.add(loginUsernameField);
 
-        loginPanel.add(new JLabel("Password:"));
-        loginPanel.add(loginPasswordField);
+        loginFieldsPanel.add(new JLabel("Password:"));
+        loginFieldsPanel.add(loginPasswordField);
 
+        loginInputPanel.add(loginFieldsPanel, BorderLayout.CENTER);
+
+        // Nút Login và Forgot Password ở dưới
+        JPanel loginButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton loginButton = new JButton("Login");
         loginButton.addActionListener(e -> {
             String username = loginUsernameField.getText();
             String password = new String(loginPasswordField.getPassword());
             if (dbManager.loginUser(username, password, LoginUI.this)) {
-                dispose(); // Đóng LoginUI
-                new MainFrame().setVisible(true); // Mở MainFrame
+                dispose();
+                new MainFrame().setVisible(true);
             }
         });
-        loginPanel.add(loginButton);
+        loginButtonPanel.add(loginButton);
 
         JButton forgotPasswordButton = new JButton("Forgot Password");
         forgotPasswordButton.addActionListener(e -> showForgotPasswordDialog());
-        loginPanel.add(forgotPasswordButton);
+        loginButtonPanel.add(forgotPasswordButton);
+
+        loginInputPanel.add(loginButtonPanel, BorderLayout.SOUTH);
+
+        loginPanel.add(loginInputPanel, BorderLayout.CENTER);
 
         tabbedPane.addTab("Register", registerPanel);
         tabbedPane.addTab("Login", loginPanel);
@@ -193,6 +262,6 @@ public class LoginUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        new LoginUI();
+        SwingUtilities.invokeLater(() -> new LoginUI());
     }
 }
