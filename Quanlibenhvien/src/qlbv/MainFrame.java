@@ -1,7 +1,6 @@
 package qlbv;
 
 import qlbv.Chat.ChatForm;
-
 import java.awt.BorderLayout;
 
 import java.awt.Color;
@@ -29,7 +28,7 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         this.setLocationRelativeTo(null);
-        URL Iconview = MainFrame.class.getResource("iconlogin.png");
+        URL Iconview = MainFrame.class.getResource("/images/iconlogin.png");
 	    Image img = Toolkit.getDefaultToolkit().createImage(Iconview);
 	    this.setIconImage(img);
         // Thêm các phần giao diện
@@ -57,65 +56,82 @@ public class MainFrame extends JFrame {
     // Tạo menu (danh sách chức năng bên trái)
     // Trong class MainFrame, sửa phương thức createMenu()
     private JPanel createMenu() {
-        JPanel menuPanel = new JPanel(new GridLayout(6, 1, 10, 10)); // Tăng số hàng lên 6
+        JPanel menuPanel = new JPanel(new GridLayout(7, 1, 10, 10)); // 7 dòng (đã thêm "In hóa đơn")
         menuPanel.setBackground(new Color(245, 255, 250));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        JButton btnManagePatients = createMenuButton("Quản lý bệnh nhân", "iconpatient.png");
-        JButton btnManageDoctors = createMenuButton("Quản lý bác sĩ", "icondoctor.png");
-        JButton btnManageAppointments = createMenuButton("Quản lý lịch hẹn", "iconapm.png");
-        JButton btnReports = createMenuButton("Báo cáo", "iconreport.png");
-        JButton btnManageRecord = createMenuButton("Quản lý hồ sơ", "iconmedical.png");
-        JButton btnCustomerSupport = createMenuButton("Chăm sóc khách hàng", "CSKH.jpg"); // Nút mới
+        JButton btnManagePatients = createMenuButton("Quản lý bệnh nhân", "/images/iconpatient.png");
+        JButton btnManageDoctors = createMenuButton("Quản lý bác sĩ", "/images/icondoctor.png");
+        JButton btnManageAppointments = createMenuButton("Quản lý lịch hẹn", "/images/iconapm.png");
+        JButton btnReports = createMenuButton("Báo cáo", "/images/iconreport.png");
+        JButton btnManageRecord = createMenuButton("Quản lý hồ sơ", "/images/iconmedical.png");
+        JButton btnCustomerSupport = createMenuButton("Chăm sóc khách hàng", "/images/CSKH.jpg");
+        JButton btnPrintInvoice = createMenuButton("In hóa đơn", "/images/iconinvoice.png");
 
+        // Gắn hành động cho các nút
         btnManagePatients.addActionListener(e -> {
             contentPanel.removeAll();
             contentPanel.add(new PatientManagementForm());
             contentPanel.revalidate();
             contentPanel.repaint();
         });
+
         btnManageDoctors.addActionListener(e -> {
             contentPanel.removeAll();
             contentPanel.add(new DoctorManagementForm());
             contentPanel.revalidate();
             contentPanel.repaint();
         });
+
         btnManageAppointments.addActionListener(e -> {
             contentPanel.removeAll();
             contentPanel.add(new AppointmentManagementForm());
             contentPanel.revalidate();
             contentPanel.repaint();
         });
+
         btnReports.addActionListener(e -> {
             contentPanel.removeAll();
             contentPanel.add(new ReportForm());
             contentPanel.revalidate();
             contentPanel.repaint();
         });
+
         btnManageRecord.addActionListener(e -> {
             contentPanel.removeAll();
             contentPanel.add(new MedicalRecordManagementForm());
             contentPanel.revalidate();
             contentPanel.repaint();
         });
+
         btnCustomerSupport.addActionListener(e -> {
             contentPanel.removeAll();
-            contentPanel.add(new ChatForm()); // Liên kết với ChatForm
+            contentPanel.add(new ChatForm());
             contentPanel.revalidate();
             contentPanel.repaint();
         });
 
+        btnPrintInvoice.addActionListener(e -> {
+            contentPanel.removeAll();
+            contentPanel.add(new InvoicePrintForm());
+            contentPanel.revalidate();
+            contentPanel.repaint();
+        });
+
+        // Thêm các nút vào menu
         menuPanel.add(btnManagePatients);
         menuPanel.add(btnManageDoctors);
         menuPanel.add(btnManageAppointments);
         menuPanel.add(btnReports);
         menuPanel.add(btnManageRecord);
-        menuPanel.add(btnCustomerSupport); // Thêm nút vào menu
+        menuPanel.add(btnCustomerSupport);
+        menuPanel.add(btnPrintInvoice); // Thêm cuối cùng
 
         return menuPanel;
     }
-	public JPanel createContentPanel() {
-	    contentPanel = new BackgroundPanel("mainjava.jpg");
+
+    public JPanel createContentPanel() {
+	    contentPanel = new BackgroundPanel("/images/mainjava.jpg");
 	    contentPanel.setLayout(new BorderLayout());
 	    return contentPanel;
 	}

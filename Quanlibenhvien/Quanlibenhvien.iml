@@ -7,10 +7,11 @@
     </content>
     <orderEntry type="jdk" jdkName="24" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="jakarta.activation-2.0.1" level="project" />
-    <orderEntry type="library" exported="" name="jakarta.mail-2.0.1" level="project" />
-    <orderEntry type="library" exported="" name="jcommon-1.0.23" level="project" />
-    <orderEntry type="library" exported="" name="jfreechart-1.0.19" level="project" />
-    <orderEntry type="library" exported="" name="mssql-jdbc-12.8.1.jre11" level="project" />
+    <orderEntry type="library" name="jfreechart-1.0.19" level="project" />
+    <orderEntry type="library" name="jcommon-1.0.23" level="project" />
+    <orderEntry type="library" name="jakarta.mail-2.0.1" level="project" />
+    <orderEntry type="library" name="jakarta.activation-2.0.1" level="project" />
+    <orderEntry type="library" name="mysql-connector-j-9.1.0" level="project" />
+    <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
   </component>
 </module>
