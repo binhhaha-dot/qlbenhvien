@@ -19,7 +19,7 @@ public class ChatServer {
         }
     }
 
-    private static class ClientHandler extends Thread {
+    public static class ClientHandler extends Thread {
         private Socket socket;
         private PrintWriter out;
         private BufferedReader in;
