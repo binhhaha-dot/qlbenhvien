@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 public class InvoicePrintForm extends JPanel implements Printable {
 
     private JTextField txtTenBN, txtNgayKham, txtDichVu, txtTongTien;
-    private JButton btnThem, btnSua, btnXoa, btnIn;
+    private JButton btnThem, btnSua, btnXoa, btnIn, btnLuuXML;
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextArea textArea;
@@ -46,11 +46,14 @@ public class InvoicePrintForm extends JPanel implements Printable {
         btnSua = new JButton("Sửa");
         btnXoa = new JButton("Xóa");
         btnIn = new JButton("In hóa đơn");
+        btnLuuXML = new JButton("Lưu XML");
 
         btnPanel.add(btnThem);
         btnPanel.add(btnSua);
         btnPanel.add(btnXoa);
         btnPanel.add(btnIn);
+        btnPanel.add(btnLuuXML);
+
 
         // --- Bảng hóa đơn ---
         tableModel = new DefaultTableModel(new String[]{"ID", "Tên", "Ngày khám", "Dịch vụ", "Tổng tiền"}, 0);
@@ -92,6 +95,9 @@ public class InvoicePrintForm extends JPanel implements Printable {
         btnSua.addActionListener(e -> suaHoaDon());
         btnXoa.addActionListener(e -> xoaHoaDon());
         btnIn.addActionListener(e -> inHoaDon());
+        btnLuuXML.addActionListener(e -> luuHoaDonXML());
+
+
     }
 
     private Connection getConnection() throws SQLException {
