@@ -3,48 +3,35 @@ package qlbv;
 import qlbv.Chat.ChatForm;
 import qlbv.Chat.ChatServer;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URL;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import java.io.IOException;
+import javax.swing.*;
 
 public class MainFrame extends JFrame {
     public JPanel contentPanel;
-    private Thread serverThread; // Quản lý luồng ChatServer
-    private volatile boolean isServerRunning; // Theo dõi trạng thái server
-    private ServerSocket serverSocket; // Để đóng server
+    private Thread serverThread;
+    private volatile boolean isServerRunning;
+    private ServerSocket serverSocket;
 
     public MainFrame() {
-        // Cấu hình JFrame
         setTitle("Quản lý bệnh viện");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         this.setLocationRelativeTo(null);
-        URL Iconview = MainFrame.class.getResource("iconlogin.png");
+
+        URL Iconview = MainFrame.class.getResource("/images/iconlogin.png");
         Image img = Toolkit.getDefaultToolkit().createImage(Iconview);
         this.setIconImage(img);
 
-        // Thêm các phần giao diện
-        add(createHeader(), BorderLayout.NORTH);  // Header
-        add(createMenu(), BorderLayout.WEST);    // Menu
-        add(createContentPanel(), BorderLayout.CENTER); // Nội dung
+        add(createHeader(), BorderLayout.NORTH);
+        add(createMenu(), BorderLayout.WEST);
+        add(createContentPanel(), BorderLayout.CENTER);
 
-        // Thêm listener để dừng server khi đóng cửa sổ
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -55,70 +42,42 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
 
-    // Tạo phần header
     private JPanel createHeader() {
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(0, 153, 204)); // xanh dương đậm
+        headerPanel.setBackground(new Color(0, 153, 204));
 
         JLabel titleLabel = new JLabel("HỆ THỐNG QUẢN LÝ BỆNH VIỆN", JLabel.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10)); // padding
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
         headerPanel.add(titleLabel, BorderLayout.CENTER);
         return headerPanel;
     }
 
-    // Tạo menu
     private JPanel createMenu() {
-        JPanel menuPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        JPanel menuPanel = new JPanel(new GridLayout(7, 1, 10, 10));
         menuPanel.setBackground(new Color(245, 255, 250));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        JButton btnManagePatients = createMenuButton("Quản lý bệnh nhân", "iconpatient.png");
-        JButton btnManageDoctors = createMenuButton("Quản lý bác sĩ", "icondoctor.png");
-        JButton btnManageAppointments = createMenuButton("Quản lý lịch hẹn", "iconapm.png");
-        JButton btnReports = createMenuButton("Báo cáo", "iconreport.png");
-        JButton btnManageRecord = createMenuButton("Quản lý hồ sơ", "iconmedical.png");
-        JButton btnCustomerSupport = createMenuButton("Chăm sóc khách hàng", "CSKH.jpg");
+        JButton btnManagePatients = createMenuButton("Quản lý bệnh nhân", "/images/iconpatient.png");
+        JButton btnManageDoctors = createMenuButton("Quản lý bác sĩ", "/images/icondoctor.png");
+        JButton btnManageAppointments = createMenuButton("Quản lý lịch hẹn", "/images/iconapm.png");
+        JButton btnReports = createMenuButton("Báo cáo", "/images/iconreport.png");
+        JButton btnManageRecord = createMenuButton("Quản lý hồ sơ", "/images/iconmedical.png");
+        JButton btnCustomerSupport = createMenuButton("Chăm sóc khách hàng", "/images/CSKH.jpg");
+        JButton btnPrintInvoice = createMenuButton("In hóa đơn", "/images/iconinvoice.png");
 
-        btnManagePatients.addActionListener(e -> {
-            contentPanel.removeAll();
-            contentPanel.add(new PatientManagementForm());
-            contentPanel.revalidate();
-            contentPanel.repaint();
-        });
-        btnManageDoctors.addActionListener(e -> {
-            contentPanel.removeAll();
-            contentPanel.add(new DoctorManagementForm());
-            contentPanel.revalidate();
-            contentPanel.repaint();
-        });
-        btnManageAppointments.addActionListener(e -> {
-            contentPanel.removeAll();
-            contentPanel.add(new AppointmentManagementForm());
-            contentPanel.revalidate();
-            contentPanel.repaint();
-        });
-        btnReports.addActionListener(e -> {
-            contentPanel.removeAll();
-            contentPanel.add(new ReportForm());
-            contentPanel.revalidate();
-            contentPanel.repaint();
-        });
-        btnManageRecord.addActionListener(e -> {
-            contentPanel.removeAll();
-            contentPanel.add(new MedicalRecordManagementForm());
-            contentPanel.revalidate();
-            contentPanel.repaint();
-        });
+        btnManagePatients.addActionListener(e -> switchContentPanel(new PatientManagementForm()));
+        btnManageDoctors.addActionListener(e -> switchContentPanel(new DoctorManagementForm()));
+        btnManageAppointments.addActionListener(e -> switchContentPanel(new AppointmentManagementForm()));
+        btnReports.addActionListener(e -> switchContentPanel(new ReportForm()));
+        btnManageRecord.addActionListener(e -> switchContentPanel(new MedicalRecordManagementForm()));
         btnCustomerSupport.addActionListener(e -> {
-            contentPanel.removeAll();
-            startChatServer(); // Khởi động server trước khi mở ChatForm
-            contentPanel.add(new ChatForm());
-            contentPanel.revalidate();
-            contentPanel.repaint();
+            startChatServer();
+            switchContentPanel(new ChatForm());
         });
+        btnPrintInvoice.addActionListener(e -> switchContentPanel(new InvoicePrintForm()));
 
         menuPanel.add(btnManagePatients);
         menuPanel.add(btnManageDoctors);
@@ -126,12 +85,13 @@ public class MainFrame extends JFrame {
         menuPanel.add(btnReports);
         menuPanel.add(btnManageRecord);
         menuPanel.add(btnCustomerSupport);
+        menuPanel.add(btnPrintInvoice);
 
         return menuPanel;
     }
 
     public JPanel createContentPanel() {
-        contentPanel = new BackgroundPanel("mainjava.jpg");
+        contentPanel = new BackgroundPanel("/images/mainjava.jpg");
         contentPanel.setLayout(new BorderLayout());
         return contentPanel;
     }
@@ -166,7 +126,13 @@ public class MainFrame extends JFrame {
         return button;
     }
 
-    // Khởi động ChatServer nếu chưa chạy
+    private void switchContentPanel(JPanel panel) {
+        contentPanel.removeAll();
+        contentPanel.add(panel);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
     private void startChatServer() {
         synchronized (this) {
             if (!isServerRunning) {
@@ -189,7 +155,6 @@ public class MainFrame extends JFrame {
                     }
                 });
                 serverThread.start();
-                // Đợi một chút để đảm bảo server đã khởi động
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -199,7 +164,6 @@ public class MainFrame extends JFrame {
         }
     }
 
-    // Dừng ChatServer
     private void stopChatServer() {
         synchronized (this) {
             isServerRunning = false;

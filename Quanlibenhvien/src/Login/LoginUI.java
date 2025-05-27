@@ -4,7 +4,6 @@ import qlbv.MainFrame;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.net.URL;
 
 public class LoginUI extends JFrame {
@@ -24,7 +23,7 @@ public class LoginUI extends JFrame {
 
         // Thêm biểu tượng cửa sổ
         try {
-            URL iconURL = getClass().getResource("/Login/iconlogin.png");
+            URL iconURL = getClass().getResource("/images/iconlogin.png");
             if (iconURL == null) {
                 throw new Exception("Không tìm thấy iconlogin.png trong thư mục resources/Login");
             }
@@ -42,7 +41,7 @@ public class LoginUI extends JFrame {
         // Hình ảnh bên trái
         JPanel imagePanel = new JPanel();
         try {
-            URL logoURL = getClass().getResource("/Login/iconlogin.png");
+            URL logoURL = getClass().getResource("/images/iconlogin.png");
             if (logoURL == null) {
                 throw new Exception("Không tìm thấy iconlogin.png trong thư mục resources/Login");
             }
@@ -88,7 +87,7 @@ public class LoginUI extends JFrame {
         // Hình ảnh bên trái
         JPanel loginImagePanel = new JPanel();
         try {
-            URL logoURL = getClass().getResource("/Login/iconlogin.png");
+            URL logoURL = getClass().getResource("/images/iconlogin.png");
             if (logoURL == null) {
                 throw new Exception("Không tìm thấy iconlogin.png trong thư mục resources/Login");
             }
