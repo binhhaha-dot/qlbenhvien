@@ -48,8 +48,8 @@ public class EmailService {
     }
 
     private void sendVerificationEmail(String toEmail, String code) {
-        String fromEmail = "hoangcao726@gmail.com"; //
-        String emailPassword = "vdnx dyuh masi zmqg"; //
+        String fromEmail = ""; //
+        String emailPassword = ""; //
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

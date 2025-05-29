@@ -9,9 +9,9 @@ import java.util.Base64;
 
 public class DatabaseManager {
     private Connection connection;
-    private static final int ITERATIONS = 100000; // Số lần lặp PBKDF2
-    private static final int KEY_LENGTH = 256; // Độ dài khóa (bit)
-    private static final int SALT_LENGTH = 16; // Độ dài salt (byte)
+    private static final int ITERATIONS = 100000;
+    private static final int KEY_LENGTH = 256;
+    private static final int SALT_LENGTH = 16;
 
     public DatabaseManager() {
         connection = getConnection();
@@ -20,30 +20,22 @@ public class DatabaseManager {
     public static Connection getConnection() {
         Connection connection = null;
         try {
-            String serverName = "DESKTOP-L1QH45U\\SQLEXPRESS";
-            String login = "sa";
-            String password = "123456789";
-            String databaseName = "qlbenhvien";
+            String url = "jdbc:mysql://localhost:3306/qlbenhvien?useSSL=false&serverTimezone=UTC";
+            String user = "root"; // Thay đổi nếu dùng user khác
+            String password = ""; // Mật khẩu MySQL của bạn
 
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            String url = "jdbc:sqlserver://" + serverName + ":1433" + ";databaseName=" + databaseName
-                    + ";encrypt=true;trustServerCertificate=true";
-
-            connection = DriverManager.getConnection(url, login, password);
-
-            System.out.println("Kết nối thành công với database: " + databaseName);
+            Class.forName("com.mysql.cj.jdbc.Driver"); // Driver cho MySQL
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Kết nối thành công MySQL!");
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return connection;
     }
 
     public static void closeConnection(Connection connection) {
         try {
-            if (connection != null) {
-                connection.close();
-            }
+            if (connection != null) connection.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -51,7 +43,6 @@ public class DatabaseManager {
 
     public void registerUser(String username, String email, String password, JFrame parent) {
         try {
-            // Kiểm tra username hoặc email đã tồn tại
             String checkQuery = "SELECT 1 FROM Users WHERE username = ? OR email = ?";
             PreparedStatement checkStmt = connection.prepareStatement(checkQuery);
             checkStmt.setString(1, username);
@@ -62,11 +53,9 @@ public class DatabaseManager {
                 return;
             }
 
-            // Tạo salt và băm mật khẩu
             byte[] salt = generateSalt();
             String hashedPassword = hashPassword(password, salt);
 
-            // Lưu vào database
             String query = "INSERT INTO Users (username, email, password, salt) VALUES (?, ?, ?, ?)";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, username);
@@ -94,8 +83,6 @@ public class DatabaseManager {
                 String storedPassword = rs.getString("password");
                 String storedSalt = rs.getString("salt");
                 byte[] salt = Base64.getDecoder().decode(storedSalt);
-
-                // Băm mật khẩu nhập vào với salt từ database
                 String hashedInputPassword = hashPassword(password, salt);
 
                 if (hashedInputPassword.equals(storedPassword)) {
@@ -126,7 +113,6 @@ public class DatabaseManager {
 
     public void resetPassword(String email, String newPassword, JDialog parent) {
         try {
-            // Tạo salt mới và băm mật khẩu mới
             byte[] salt = generateSalt();
             String hashedPassword = hashPassword(newPassword, salt);
 
@@ -144,7 +130,6 @@ public class DatabaseManager {
         }
     }
 
-    // Tạo salt ngẫu nhiên
     private byte[] generateSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_LENGTH];
@@ -152,7 +137,6 @@ public class DatabaseManager {
         return salt;
     }
 
-    // Băm mật khẩu với PBKDF2
     private String hashPassword(String password, byte[] salt) {
         try {
             PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, ITERATIONS, KEY_LENGTH);
