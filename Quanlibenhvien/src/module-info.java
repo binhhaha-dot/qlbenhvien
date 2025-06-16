@@ -9,4 +9,5 @@ module Quanlibenhvien {
 	requires java.desktop;
 	requires jfreechart;
     requires jakarta.mail;
+	requires kotlin.stdlib;
 }
