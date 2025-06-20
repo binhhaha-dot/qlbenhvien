@@ -20,7 +20,7 @@ public class DatabaseManager {
     public static Connection getConnection() {
         Connection connection = null;
         try {
-            String url = "jdbc:mysql://localhost:3306/qlbenhvien?useSSL=false&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost:3306/qlbenhvien?useLegacyDatetimeCode=true";
             String user = "root";
             String password = ""; // Mặc định MySQL XAMPP không có mật khẩu
 
@@ -121,9 +121,9 @@ public class DatabaseManager {
 
             String query = "UPDATE Users SET password = ?, salt = ? WHERE email = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, hashedPassword);
-            stmt.setString(2, Base64.getEncoder().encodeToString(salt));
-            stmt.setString(3, email);
+            stmt.setString(1, email);
+            stmt.setString(2, hashedPassword);
+            stmt.setString(3, Base64.getEncoder().encodeToString(salt));
             stmt.executeUpdate();
 
             JOptionPane.showMessageDialog(parent, "Password reset successful!", "Success", JOptionPane.INFORMATION_MESSAGE);

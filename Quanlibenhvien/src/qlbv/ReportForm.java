@@ -1,6 +1,7 @@
 package qlbv;
 
 import java.awt.BorderLayout;
+
 import java.awt.FlowLayout;
 import java.awt.Font;
 
@@ -54,8 +55,8 @@ public class ReportForm extends JPanel {
         panelButton.add(btnShowBarChart);
         panelButton.add(btnShowChart);
         panelButton.add(btnLoadData);
-       this.add(panelButton, BorderLayout.SOUTH);
-       
+        this.add(panelButton, BorderLayout.SOUTH);
+
         // Tải dữ liệu khi khởi tạo
         loadReportData();
     }
@@ -123,9 +124,9 @@ public class ReportForm extends JPanel {
 
     private void loadReportData() {
         // Xóa dữ liệu cũ trong bảng
-    	reportDAO.updateReport();
+        reportDAO.updateReport();
         tableModel.setRowCount(0);
-        
+
         // Lấy báo cáo mới nhất từ CSDL
         Report latestReport = reportDAO.getLatestReport();
         if (latestReport != null) {
@@ -139,6 +140,6 @@ public class ReportForm extends JPanel {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu báo cáo!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-    
+
 }
 

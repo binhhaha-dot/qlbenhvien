@@ -206,7 +206,7 @@ public class LoginUI extends JFrame {
 
         JButton verifyButton = new JButton("Verify");
         verifyButton.addActionListener(e -> {
-            String enteredCode = codeInput.getText();
+            String enteredCode = codeInput.getText()  ;
             if (System.currentTimeMillis() > emailService.getCodeExpirationTime()) {
                 JOptionPane.showMessageDialog(codeDialog, "Verification code has expired!", "Error", JOptionPane.ERROR_MESSAGE);
                 codeDialog.dispose();

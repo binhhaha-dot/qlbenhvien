@@ -16,7 +16,7 @@ public class Report {
     public Report() {}
 
     // Constructor đầy đủ tham số
-   
+
 
     // Getter và Setter
     public int getReportID() {
@@ -24,19 +24,19 @@ public class Report {
     }
 
     public Report(int reportID, Date reportDate, int totalPatients, int totalDoctors, int todayAppointments,
-			int completedAppointments, int cancelledAppointments, int newPatientsThisMonth) {
-		super();
-		this.reportID = reportID;
-		this.reportDate = reportDate;
-		this.totalPatients = totalPatients;
-		this.totalDoctors = totalDoctors;
-		this.todayAppointments = todayAppointments;
-		this.completedAppointments = completedAppointments;
-		this.cancelledAppointments = cancelledAppointments;
-		this.newPatientsThisMonth = newPatientsThisMonth;
-	}
+                  int completedAppointments, int cancelledAppointments, int newPatientsThisMonth) {
+        super();
+        this.reportID = reportID;
+        this.reportDate = reportDate;
+        this.totalPatients = totalPatients;
+        this.totalDoctors = totalDoctors;
+        this.todayAppointments = todayAppointments;
+        this.completedAppointments = completedAppointments;
+        this.cancelledAppointments = cancelledAppointments;
+        this.newPatientsThisMonth = newPatientsThisMonth;
+    }
 
-	public void setReportID(int reportID) {
+    public void setReportID(int reportID) {
         this.reportID = reportID;
     }
 
@@ -81,22 +81,22 @@ public class Report {
     }
 
     public int getCancelledAppointments() {
-		return cancelledAppointments;
-	}
+        return cancelledAppointments;
+    }
 
-	public void setCancelledAppointments(int cancelledAppointments) {
-		this.cancelledAppointments = cancelledAppointments;
-	}
+    public void setCancelledAppointments(int cancelledAppointments) {
+        this.cancelledAppointments = cancelledAppointments;
+    }
 
-	public int getNewPatientsThisMonth() {
-		return newPatientsThisMonth;
-	}
+    public int getNewPatientsThisMonth() {
+        return newPatientsThisMonth;
+    }
 
-	public void setNewPatientsThisMonth(int newPatientsThisMonth) {
-		this.newPatientsThisMonth = newPatientsThisMonth;
-	}
+    public void setNewPatientsThisMonth(int newPatientsThisMonth) {
+        this.newPatientsThisMonth = newPatientsThisMonth;
+    }
 
-	// Phương thức toString (nếu cần để debug hoặc hiển thị)
+    // Phương thức toString (nếu cần để debug hoặc hiển thị)
     @Override
     public String toString() {
         return "Report{" +
