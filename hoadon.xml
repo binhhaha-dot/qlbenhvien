@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HoaDon>
-    <ID>111</ID>
-    <TenBenhNhan>han</TenBenhNhan>
-    <NgayKham>2025-05-01</NgayKham>
-    <DichVu>kham mat</DichVu>
-    <TongTien>10000000</TongTien>
+    <ID>114</ID>
+    <TenBenhNhan>binh</TenBenhNhan>
+    <NgayKham>2025-05-25</NgayKham>
+    <DichVu>chan</DichVu>
+    <TongTien>100000000</TongTien>
 </HoaDon>
