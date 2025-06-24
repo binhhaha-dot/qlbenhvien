@@ -7,7 +7,7 @@ public class Appointment {
 	    private int patientID;  // Liên kết với bảng Patient
 	    private int doctorID;   // Liên kết với bảng Doctor
 	    private Timestamp appointmentDate;
-	    private String status;  // Trạng thái của lịch hẹn (Ví dụ: Đang chờ, Hoàn thành)
+	    private String status;  // Trạng thái của lịch hẹn
 	    private String patientName;
 	    private String doctorName;
 	    // Constructor

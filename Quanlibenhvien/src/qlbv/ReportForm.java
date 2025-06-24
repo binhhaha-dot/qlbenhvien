@@ -2,6 +2,9 @@ package qlbv;
 
 import java.awt.BorderLayout;
 
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+
 import java.awt.FlowLayout;
 import java.awt.Font;
 
@@ -65,7 +68,7 @@ public class ReportForm extends JPanel {
         if (latestReport != null) {
             // Tạo dataset cho biểu đồ
             DefaultPieDataset dataset = new DefaultPieDataset();
-            dataset.setValue("Lịch hẹn chưa hoàn thành", latestReport.getCancelledAppointments());
+            dataset.setValue("Lịch hẹn đã hủy", latestReport.getCancelledAppointments());
             dataset.setValue("Lịch hẹn đã hoàn thành", latestReport.getCompletedAppointments());
 
             // Tạo biểu đồ
@@ -95,22 +98,28 @@ public class ReportForm extends JPanel {
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             dataset.addValue(latestReport.getTotalPatients(), "Số liệu", "Tổng số bệnh nhân");
             dataset.addValue(latestReport.getTotalDoctors(), "Số liệu", "Tổng số bác sĩ");
-            dataset.addValue(latestReport.getTodayAppointments(), "Số liệu", "Lịch hẹn hôm nay");
+            dataset.addValue(latestReport.getNewPatientsThisMonth(), "Số liệu", "Lịch hẹn trong tháng");
             dataset.addValue(latestReport.getCompletedAppointments(), "Số liệu", "Hoàn thành");
+            dataset.addValue(latestReport.getTodayAppointments(), "Số liệu", "Lịch hẹn trong ngày");
 
             // Tạo biểu đồ
             JFreeChart chart = ChartFactory.createBarChart(
-                    "Thống kê báo cáo",  // Tiêu đề biểu đồ
-                    "Danh mục",         // Trục X
-                    "Số liệu",          // Trục Y
-                    dataset,            // Dữ liệu
-                    PlotOrientation.VERTICAL, // Hướng biểu đồ
-                    true,               // Hiển thị chú thích (legend)
-                    true,               // Hiển thị tooltips
-                    false               // Không cần URL
+                    "Thống kê báo cáo",
+                    "Danh mục",
+                    "Số liệu",
+                    dataset,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    true,
+                    false
             );
 
-            // Hiển thị biểu đồ trong một cửa sổ riêng
+            // ⚙️ Chỉnh trục Y hiển thị số nguyên
+            CategoryPlot plot = (CategoryPlot) chart.getPlot();
+            NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+            yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            // Hiển thị biểu đồ
             ChartPanel chartPanel = new ChartPanel(chart);
             JFrame chartFrame = new JFrame("Biểu đồ cột thống kê");
             chartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -121,6 +130,7 @@ public class ReportForm extends JPanel {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu để hiển thị biểu đồ!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
+
 
     private void loadReportData() {
         // Xóa dữ liệu cũ trong bảng

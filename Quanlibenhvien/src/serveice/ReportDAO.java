@@ -35,21 +35,32 @@ public class ReportDAO {
 	}
 	public void updateReport() {
 		String sql = """
-    INSERT INTO Reports 
-    (ReportDate, TotalPatients, TotalDoctors, TodayAppointments, CompletedAppointments, CancelledAppointments, NewPatientsThisMonth)
-    VALUES (
-        CURDATE(),
-        (SELECT COUNT(*) FROM Patients),
-        (SELECT COUNT(*) FROM Doctors),
-        (SELECT COUNT(*) FROM Appointments WHERE DATE(AppointmentDate) = CURDATE()),
-        (SELECT COUNT(*) FROM Appointments WHERE Status = N'Đã khám'),
-        (SELECT COUNT(*) FROM Appointments WHERE Status = N'Đã hủy'),
-        (SELECT COUNT(*) FROM MedicalRecord WHERE MONTH(RecordDate) = MONTH(CURDATE()) AND YEAR(RecordDate) = YEAR(CURDATE()))
-    )
-    """;
+        INSERT INTO Reports 
+        (ReportDate, TotalPatients, TotalDoctors, TodayAppointments, CompletedAppointments, CancelledAppointments, NewPatientsThisMonth)
+        VALUES (
+            CURDATE(),
+            (SELECT COUNT(*) FROM Patients),
+            (SELECT COUNT(*) FROM Doctors),
+            (SELECT COUNT(*) FROM Appointments WHERE DATE(AppointmentDate) = CURDATE()),
+            (SELECT COUNT(*) FROM Appointments WHERE Status = N'Đã khám'),
+            (SELECT COUNT(*) FROM Appointments WHERE Status = N'Hủy'),
+            (SELECT COUNT(*) FROM MedicalRecord WHERE MONTH(RecordDate) = MONTH(CURDATE()) AND YEAR(RecordDate) = YEAR(CURDATE()))
+        )
+        """;
 		try (Connection conn = ketnoi.getConnection();
 			 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.executeUpdate();
+			int rowsAffected = pstmt.executeUpdate();
+			System.out.println("Rows inserted into Reports: " + rowsAffected);
+			// Debug truy vấn TodayAppointments
+			String debugSql = "SELECT COUNT(*) FROM Appointments WHERE DATE(AppointmentDate) = CURDATE()";
+			try (Statement stmt = conn.createStatement();
+				 ResultSet rs = stmt.executeQuery(debugSql)) {
+				if (rs.next()) {
+					System.out.println("TodayAppointments: " + rs.getInt(1));
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

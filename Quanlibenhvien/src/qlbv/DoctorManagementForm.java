@@ -89,7 +89,7 @@ public class DoctorManagementForm extends JPanel{
             boolean success = doctorDAO.addDoctor(newDoctor);
 
             if (success) {
-                JOptionPane.showMessageDialog(this, "Thêm bác sĩ thành công!");
+                JOptionPane.showMessageDialog(this, "Thêm bác sĩ " + name +"thanh cong!");
                 loadDoctorData(); 
                 nameField.setText("");
                 specialtyField.setText("");
