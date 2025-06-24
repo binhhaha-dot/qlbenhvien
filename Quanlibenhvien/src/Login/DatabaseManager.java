@@ -21,6 +21,7 @@ public class DatabaseManager {
         Connection connection = null;
         try {
             String url = "jdbc:mysql://localhost:3306/qlbenhvien?useSSL=false&serverTimezone=UTC";
+
             String user = "root"; // Thay đổi nếu dùng user khác
             String password = ""; // Mật khẩu MySQL của bạn
 

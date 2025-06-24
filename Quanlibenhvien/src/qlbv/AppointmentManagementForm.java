@@ -1,13 +1,15 @@
 package qlbv;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.HashSet;
+import java.util.Set;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
+import javax.swing.SwingUtilities;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.List;
-
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,7 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-
 import model.Appointment;
 import model.Doctor;
 import model.Patient;
@@ -37,6 +38,10 @@ public class AppointmentManagementForm extends JPanel{
     private  JComboBox<String> statusDropdown ;
     private JTextField searchField;
     private JButton searchButton;
+
+    private ScheduledExecutorService scheduler;
+    private Set<Integer> remindedAppointments = new HashSet<>();
+
     public AppointmentManagementForm() {
         setLayout(new BorderLayout());
 
@@ -113,6 +118,14 @@ public class AppointmentManagementForm extends JPanel{
                 fillFormWithSelectedRow();
             }
         });
+        appointmentTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                fillFormWithSelectedRow();
+            }
+        });
+
+        startAppointmentReminderThread();
+
 
 
 
@@ -306,5 +319,48 @@ public class AppointmentManagementForm extends JPanel{
         doctorDropdown.setSelectedIndex(0);
         dateField.setText("");
         statusDropdown.setSelectedIndex(0);
+
     }
+    private void startAppointmentReminderThread() {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                List<Appointment> appointments = new AppointmentDAO().getAllAppointmentsWithDetails();
+                long now = System.currentTimeMillis();
+
+                for (Appointment appt : appointments) {
+                    long millisUntil = appt.getAppointmentDate().getTime() - now;
+                    long minutesUntil = millisUntil / (60 * 1000);
+
+                    if (minutesUntil > 0 && minutesUntil <= 5 && appt.getStatus().equals("Chờ khám")) {
+                        int appointmentID = appt.getAppointmentID();
+                        if (!remindedAppointments.contains(appointmentID)) {
+                            remindedAppointments.add(appointmentID);
+
+                            SwingUtilities.invokeLater(() -> {
+                                JOptionPane.showMessageDialog(this,
+                                        "🔔 Lịch hẹn sắp tới!\n"
+                                                + "Bệnh nhân: " + appt.getPatientName() + "\n"
+                                                + "Bác sĩ: " + appt.getDoctorName() + "\n"
+                                                + "Thời gian: " + appt.getAppointmentDate(),
+                                        "Nhắc lịch hẹn", JOptionPane.INFORMATION_MESSAGE);
+                            });
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }, 0, 1, TimeUnit.MINUTES); // Chạy mỗi phút
+    }
+
+    public void stopReminderThread() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+        }
+    }
+
 }
+
+

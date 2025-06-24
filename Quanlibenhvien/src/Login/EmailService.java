@@ -2,14 +2,9 @@ package Login;
 
 
 import jakarta.mail.*;
-import jakarta.mail.internet.*;
-import jakarta.mail.Session;
-import jakarta.mail.Authenticator;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Message;
 import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.Transport;
-import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+
 import javax.swing.*;
 
 import java.sql.SQLException;
@@ -48,8 +43,8 @@ public class EmailService {
     }
 
     private void sendVerificationEmail(String toEmail, String code) {
-        String fromEmail = ""; //
-        String emailPassword = ""; //
+        String fromEmail = "nguyenvanbinh270706@gmail.com"; //
+        String emailPassword = "rdnh nsos xmgo jiwm"; //
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

@@ -1,20 +1,26 @@
 package qlbv;
-
-import java.io.FileWriter;
-import java.io.IOException;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.sql.*;
-import java.text.SimpleDateFormat;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class InvoicePrintForm extends JPanel implements Printable {
 
     private JTextField txtTenBN, txtNgayKham, txtDichVu, txtTongTien;
-    private JButton btnThem, btnSua, btnXoa, btnIn, btnLuuXML;
+    private JButton btnThem, btnSua, btnXoa, btnIn, btnLuuXML, btnDocXML;
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextArea textArea;
@@ -47,12 +53,14 @@ public class InvoicePrintForm extends JPanel implements Printable {
         btnXoa = new JButton("Xóa");
         btnIn = new JButton("In hóa đơn");
         btnLuuXML = new JButton("Lưu XML");
+        btnDocXML = new JButton("ĐỌC XML");
 
         btnPanel.add(btnThem);
         btnPanel.add(btnSua);
         btnPanel.add(btnXoa);
         btnPanel.add(btnIn);
         btnPanel.add(btnLuuXML);
+        btnPanel.add(btnDocXML);
 
 
         // --- Bảng hóa đơn ---
@@ -95,13 +103,15 @@ public class InvoicePrintForm extends JPanel implements Printable {
         btnSua.addActionListener(e -> suaHoaDon());
         btnXoa.addActionListener(e -> xoaHoaDon());
         btnIn.addActionListener(e -> inHoaDon());
-        btnLuuXML.addActionListener(e -> luuHoaDonXML());
+        btnLuuXML.addActionListener(e -> luuHoaDonXML_DOM());
+        btnDocXML.addActionListener(e -> docHoaDonXML_DOM());
+
 
 
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/qlbenhvien", "root", "");
+        return DriverManager.getConnection("jdbc:mysql://localhost:3306/qlphongkham", "root", "");
     }
 
     private void loadInvoiceData() {
@@ -125,6 +135,7 @@ public class InvoicePrintForm extends JPanel implements Printable {
         }
     }
 
+
     private void themHoaDon() {
         String sql = "INSERT INTO hoadon (tenbenhnhan, ngaykham, dichvu, tongtien) VALUES (?, ?, ?, ?)";
         try (Connection conn = getConnection();
@@ -143,6 +154,7 @@ public class InvoicePrintForm extends JPanel implements Printable {
             JOptionPane.showMessageDialog(this, "Lỗi thêm: " + e.getMessage());
         }
     }
+
 
     private void suaHoaDon() {
         int row = table.getSelectedRow();
@@ -229,30 +241,92 @@ public class InvoicePrintForm extends JPanel implements Printable {
         textArea.printAll(g);
         return PAGE_EXISTS;
     }
-    private void luuHoaDonXML() {
+    private void luuHoaDonXML_DOM() {
         int row = table.getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để lưu!");
             return;
         }
 
-        StringBuilder xml = new StringBuilder();
-        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        xml.append("<HoaDon>\n");
-        xml.append("    <ID>").append(tableModel.getValueAt(row, 0)).append("</ID>\n");
-        xml.append("    <TenBenhNhan>").append(tableModel.getValueAt(row, 1)).append("</TenBenhNhan>\n");
-        xml.append("    <NgayKham>").append(tableModel.getValueAt(row, 2)).append("</NgayKham>\n");
-        xml.append("    <DichVu>").append(tableModel.getValueAt(row, 3)).append("</DichVu>\n");
-        xml.append("    <TongTien>").append(tableModel.getValueAt(row, 4)).append("</TongTien>\n");
-        xml.append("</HoaDon>");
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
 
-        try (FileWriter writer = new FileWriter("hoadon.xml")) {
-            writer.write(xml.toString());
-            JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn vào file hoadon.xml");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi ghi file XML: " + e.getMessage());
+            Document doc = builder.newDocument();
+            Element root = doc.createElement("HoaDon");
+            doc.appendChild(root);
+
+            Element id = doc.createElement("ID");
+            id.appendChild(doc.createTextNode(tableModel.getValueAt(row, 0).toString()));
+            root.appendChild(id);
+
+            Element ten = doc.createElement("TenBenhNhan");
+            ten.appendChild(doc.createTextNode(tableModel.getValueAt(row, 1).toString()));
+            root.appendChild(ten);
+
+            Element ngay = doc.createElement("NgayKham");
+            ngay.appendChild(doc.createTextNode(tableModel.getValueAt(row, 2).toString()));
+            root.appendChild(ngay);
+
+            Element dv = doc.createElement("DichVu");
+            dv.appendChild(doc.createTextNode(tableModel.getValueAt(row, 3).toString()));
+            root.appendChild(dv);
+
+            Element tong = doc.createElement("TongTien");
+            tong.appendChild(doc.createTextNode(tableModel.getValueAt(row, 4).toString()));
+            root.appendChild(tong);
+
+            // Ghi ra file
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            DOMSource domSource = new DOMSource(doc);
+            StreamResult sr = new StreamResult(new File("hoadon.xml"));
+            transformer.transform(domSource, sr);
+
+            JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn XML bằng DOM");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi DOM XML: " + e.getMessage());
         }
     }
+    private void docHoaDonXML_DOM() {
+        try {
+            File xmlFile = new File("hoadon.xml");
+            if (!xmlFile.exists()) {
+                JOptionPane.showMessageDialog(this, "File hoadon.xml không tồn tại!");
+                return;
+            }
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+
+            NodeList list = doc.getElementsByTagName("HoaDon");
+
+            tableModel.setRowCount(0); // Xóa bảng cũ
+            for (int i = 0; i < list.getLength(); i++) {
+                Node node = list.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element ele = (Element) node;
+
+                    String id = ele.getElementsByTagName("ID").item(0).getTextContent();
+                    String ten = ele.getElementsByTagName("TenBenhNhan").item(0).getTextContent();
+                    String ngay = ele.getElementsByTagName("NgayKham").item(0).getTextContent();
+                    String dv = ele.getElementsByTagName("DichVu").item(0).getTextContent();
+                    String tong = ele.getElementsByTagName("TongTien").item(0).getTextContent();
+
+                    tableModel.addRow(new Object[]{Integer.parseInt(id), ten, Date.valueOf(ngay), dv, Integer.parseInt(tong)});
+                }
+            }
+
+            JOptionPane.showMessageDialog(this, "Đọc XML thành công!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi đọc XML: " + e.getMessage());
+        }
+    }
+
 
 }
 
