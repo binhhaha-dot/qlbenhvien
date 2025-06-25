@@ -95,6 +95,15 @@ public class PatientManagementForm extends JPanel {
 
 	            // Thêm vào CSDL
 	            PatientDAO patientDAO = new PatientDAO();
+
+				if (nameField.getText().trim().isEmpty() || genderDropdown.getSelectedIndex() == 0 ||
+					dobField.getText().trim().isEmpty() ||phoneField.getText().trim().isEmpty()  ||
+						addressField.getText().trim().isEmpty()) {
+
+					JOptionPane.showMessageDialog(this, "Bạn cần nhập đầy đủ thông tina!!!!");
+					return;
+				}
+
 	            boolean success = patientDAO.addPatient(newPatient);
 
 	            if (success) {
@@ -105,10 +114,14 @@ public class PatientManagementForm extends JPanel {
 	                dobField.setText("");
 	                phoneField.setText("");
 	                addressField.setText("");
-	            } else {
+
+	            }
+				else {
 	                JOptionPane.showMessageDialog(this, "Thêm bệnh nhân thất bại!");
 	            }
 	        });
+
+
 	        updateButton.addActionListener(e -> {
 	            int selectedRow = patientTable.getSelectedRow();
 	            if (selectedRow == -1) {
