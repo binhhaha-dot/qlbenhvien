@@ -1,4 +1,4 @@
-package qlbv.Chat;
+package Chat;
 
 import javax.swing.*;
 import java.awt.*;

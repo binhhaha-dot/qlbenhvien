@@ -1,4 +1,4 @@
-package qlbv.Chat;
+package Chat;
 
 public interface ChatInterface {
     void appendMessage(String message);

@@ -1,7 +1,7 @@
 package qlbv;
 
-import qlbv.Chat.ChatForm;
-import qlbv.Chat.ChatServer;
+import Chat.ChatForm;
+import Chat.ChatServer;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;

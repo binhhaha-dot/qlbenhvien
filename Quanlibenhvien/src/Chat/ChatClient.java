@@ -1,4 +1,4 @@
-package qlbv.Chat;
+package Chat;
 
 import java.io.*;
 import java.net.*;

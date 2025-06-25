@@ -1,31 +1,26 @@
+// File: view/InvoicePanel.java
 package qlbv;
+
+import serveice.InvoiceController;
+import model.HoaDon;
+import java.sql.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
-import java.sql.*;
-import java.io.File;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.List;
 
 public class InvoicePrintForm extends JPanel implements Printable {
-
     private JTextField txtTenBN, txtNgayKham, txtDichVu, txtTongTien;
     private JButton btnThem, btnSua, btnXoa, btnIn, btnLuuXML, btnDocXML;
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextArea textArea;
+    private InvoiceController controller;
 
     public InvoicePrintForm() {
+        controller = new InvoiceController();
         setLayout(new BorderLayout());
 
         // --- Panel Nhập Dữ Liệu ---
@@ -62,7 +57,6 @@ public class InvoicePrintForm extends JPanel implements Printable {
         btnPanel.add(btnLuuXML);
         btnPanel.add(btnDocXML);
 
-
         // --- Bảng hóa đơn ---
         tableModel = new DefaultTableModel(new String[]{"ID", "Tên", "Ngày khám", "Dịch vụ", "Tổng tiền"}, 0);
         table = new JTable(tableModel);
@@ -85,7 +79,7 @@ public class InvoicePrintForm extends JPanel implements Printable {
         add(invoiceScroll, BorderLayout.SOUTH);
 
         // --- Load dữ liệu ---
-        loadInvoiceData();
+        loadDataToTable();
 
         // --- Sự kiện bảng ---
         table.addMouseListener(new MouseAdapter() {
@@ -99,107 +93,47 @@ public class InvoicePrintForm extends JPanel implements Printable {
         });
 
         // --- Sự kiện nút ---
-        btnThem.addActionListener(e -> themHoaDon());
-        btnSua.addActionListener(e -> suaHoaDon());
-        btnXoa.addActionListener(e -> xoaHoaDon());
-        btnIn.addActionListener(e -> inHoaDon());
-        btnLuuXML.addActionListener(e -> luuHoaDonXML_DOM());
-        btnDocXML.addActionListener(e -> docHoaDonXML_DOM());
+        btnThem.addActionListener(e -> {
+            controller.themHoaDon(txtTenBN.getText(), txtNgayKham.getText(), txtDichVu.getText(), txtTongTien.getText());
+            loadDataToTable();
+        });
 
-
-
-    }
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/qlphongkham", "root", "");
-    }
-
-    private void loadInvoiceData() {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM hoadon ORDER BY id DESC")) {
-
-            tableModel.setRowCount(0);
-            while (rs.next()) {
-                tableModel.addRow(new Object[]{
-                        rs.getInt("id"),
-                        rs.getString("tenbenhnhan"),
-                        rs.getDate("ngaykham"),
-                        rs.getString("dichvu"),
-                        rs.getInt("tongtien")
-                });
+        btnSua.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                int id = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
+                controller.suaHoaDon(id, txtTenBN.getText(), txtNgayKham.getText(), txtDichVu.getText(), txtTongTien.getText());
+                loadDataToTable();
             }
+        });
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi DB: " + e.getMessage());
-        }
+        btnXoa.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                int id = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
+                controller.xoaHoaDon(id);
+                loadDataToTable();
+            }
+        });
+
+        btnIn.addActionListener(e -> inHoaDon());
+
+        btnLuuXML.addActionListener(e -> controller.luuXML(tableModel));
+        btnDocXML.addActionListener(e -> {
+            List<HoaDon> list = controller.docXML();
+            loadListToTable(list);
+        });
     }
 
-
-    private void themHoaDon() {
-        String sql = "INSERT INTO hoadon (tenbenhnhan, ngaykham, dichvu, tongtien) VALUES (?, ?, ?, ?)";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, txtTenBN.getText());
-            ps.setDate(2, Date.valueOf(txtNgayKham.getText()));
-            ps.setString(3, txtDichVu.getText());
-            ps.setInt(4, Integer.parseInt(txtTongTien.getText()));
-
-            ps.executeUpdate();
-            loadInvoiceData();
-            JOptionPane.showMessageDialog(this, "Thêm thành công!");
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi thêm: " + e.getMessage());
-        }
+    private void loadDataToTable() {
+        List<HoaDon> danhSach = controller.layTatCaHoaDon();
+        loadListToTable(danhSach);
     }
 
-
-    private void suaHoaDon() {
-        int row = table.getSelectedRow();
-        if (row < 0) return;
-
-        int id = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
-
-        String sql = "UPDATE hoadon SET tenbenhnhan=?, ngaykham=?, dichvu=?, tongtien=? WHERE id=?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, txtTenBN.getText());
-            ps.setDate(2, Date.valueOf(txtNgayKham.getText()));
-            ps.setString(3, txtDichVu.getText());
-            ps.setInt(4, Integer.parseInt(txtTongTien.getText()));
-            ps.setInt(5, id);
-
-            ps.executeUpdate();
-            loadInvoiceData();
-            JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi sửa: " + e.getMessage());
-        }
-    }
-
-    private void xoaHoaDon() {
-        int row = table.getSelectedRow();
-        if (row < 0) return;
-
-        int id = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
-
-        int confirm = JOptionPane.showConfirmDialog(this, "Xóa hóa đơn ID " + id + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
-
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM hoadon WHERE id=?")) {
-
-            ps.setInt(1, id);
-            ps.executeUpdate();
-            loadInvoiceData();
-            JOptionPane.showMessageDialog(this, "Xóa thành công!");
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Lỗi xóa: " + e.getMessage());
+    private void loadListToTable(List<HoaDon> list) {
+        tableModel.setRowCount(0);
+        for (HoaDon hd : list) {
+            tableModel.addRow(new Object[]{hd.getId(), hd.getTenBenhNhan(), hd.getNgayKham(), hd.getDichVu(), hd.getTongTien()});
         }
     }
 
@@ -219,7 +153,6 @@ public class InvoicePrintForm extends JPanel implements Printable {
 
         textArea.setText(sb.toString());
 
-        // In nếu cần
         PrinterJob job = PrinterJob.getPrinterJob();
         job.setPrintable(this);
         if (job.printDialog()) {
@@ -231,103 +164,16 @@ public class InvoicePrintForm extends JPanel implements Printable {
         }
     }
 
-    // Interface Printable để in JTextArea
     @Override
     public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
         if (pageIndex > 0) return NO_SUCH_PAGE;
-
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(pf.getImageableX(), pf.getImageableY());
         textArea.printAll(g);
         return PAGE_EXISTS;
     }
-    private void luuHoaDonXML_DOM() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để lưu!");
-            return;
-        }
-
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-
-            Document doc = builder.newDocument();
-            Element root = doc.createElement("HoaDon");
-            doc.appendChild(root);
-
-            Element id = doc.createElement("ID");
-            id.appendChild(doc.createTextNode(tableModel.getValueAt(row, 0).toString()));
-            root.appendChild(id);
-
-            Element ten = doc.createElement("TenBenhNhan");
-            ten.appendChild(doc.createTextNode(tableModel.getValueAt(row, 1).toString()));
-            root.appendChild(ten);
-
-            Element ngay = doc.createElement("NgayKham");
-            ngay.appendChild(doc.createTextNode(tableModel.getValueAt(row, 2).toString()));
-            root.appendChild(ngay);
-
-            Element dv = doc.createElement("DichVu");
-            dv.appendChild(doc.createTextNode(tableModel.getValueAt(row, 3).toString()));
-            root.appendChild(dv);
-
-            Element tong = doc.createElement("TongTien");
-            tong.appendChild(doc.createTextNode(tableModel.getValueAt(row, 4).toString()));
-            root.appendChild(tong);
-
-            // Ghi ra file
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            DOMSource domSource = new DOMSource(doc);
-            StreamResult sr = new StreamResult(new File("hoadon.xml"));
-            transformer.transform(domSource, sr);
-
-            JOptionPane.showMessageDialog(this, "Đã lưu hóa đơn XML bằng DOM");
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi DOM XML: " + e.getMessage());
-        }
-    }
-    private void docHoaDonXML_DOM() {
-        try {
-            File xmlFile = new File("hoadon.xml");
-            if (!xmlFile.exists()) {
-                JOptionPane.showMessageDialog(this, "File hoadon.xml không tồn tại!");
-                return;
-            }
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(xmlFile);
-            doc.getDocumentElement().normalize();
-
-            NodeList list = doc.getElementsByTagName("HoaDon");
-
-            tableModel.setRowCount(0); // Xóa bảng cũ
-            for (int i = 0; i < list.getLength(); i++) {
-                Node node = list.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element ele = (Element) node;
-
-                    String id = ele.getElementsByTagName("ID").item(0).getTextContent();
-                    String ten = ele.getElementsByTagName("TenBenhNhan").item(0).getTextContent();
-                    String ngay = ele.getElementsByTagName("NgayKham").item(0).getTextContent();
-                    String dv = ele.getElementsByTagName("DichVu").item(0).getTextContent();
-                    String tong = ele.getElementsByTagName("TongTien").item(0).getTextContent();
-
-                    tableModel.addRow(new Object[]{Integer.parseInt(id), ten, Date.valueOf(ngay), dv, Integer.parseInt(tong)});
-                }
-            }
-
-            JOptionPane.showMessageDialog(this, "Đọc XML thành công!");
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi đọc XML: " + e.getMessage());
-        }
-    }
-
 
 }
+
 
 
